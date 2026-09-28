@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -17,7 +17,50 @@ export default function AdminSidebar({
   onCloseMobile,
 }: AdminSidebarProps) {
   const pathname = usePathname();
-  const { user, logout } = useAdminAuth();
+  const { user, logout, authFetch } = useAdminAuth();
+  const [unreadDemoCount, setUnreadDemoCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const res = await authFetch("/api/book-demo");
+      if (res.ok) {
+        const data = await res.json();
+        const unread = (data.data || []).filter(
+          (item: { isRead?: boolean }) => !item.isRead
+        ).length;
+        setUnreadDemoCount(unread);
+      }
+    } catch (err) {
+      console.error("Error fetching unread demo count", err);
+    }
+  }, [authFetch]);
+
+  useEffect(() => {
+    fetchUnreadCount();
+
+    const handleStatsUpdated = () => {
+      fetchUnreadCount();
+    };
+
+    window.addEventListener("admin_stats_updated", handleStatsUpdated);
+    const interval = setInterval(fetchUnreadCount, 30000);
+
+    return () => {
+      window.removeEventListener("admin_stats_updated", handleStatsUpdated);
+      clearInterval(interval);
+    };
+  }, [fetchUnreadCount]);
+
+  const handleDemoNavClick = async () => {
+    onCloseMobile();
+    try {
+      setUnreadDemoCount(0);
+      await authFetch("/api/book-demo/mark-all-read", { method: "PUT" });
+      window.dispatchEvent(new Event("admin_stats_updated"));
+    } catch (err) {
+      console.error("Error marking demo requests as read", err);
+    }
+  };
 
   const navItems = [
     {
@@ -124,25 +167,41 @@ export default function AdminSidebar({
               ? pathname === item.href
               : pathname.startsWith(item.href);
 
+            const isDemoReq = item.href === "/admin/demo-requests";
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={onCloseMobile}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-['Manrope'] font-medium text-sm transition-all duration-200 group ${
+                onClick={isDemoReq ? handleDemoNavClick : onCloseMobile}
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl font-['Manrope'] font-medium text-sm transition-all duration-200 group ${
                   isActive
                     ? "bg-[#199250] text-white shadow-md shadow-emerald-700/20 font-semibold"
                     : "text-zinc-600 hover:text-emerald-800 hover:bg-emerald-50/60"
                 }`}
               >
-                <span
-                  className={`${
-                    isActive ? "text-white" : "text-zinc-400 group-hover:text-emerald-600"
-                  } transition-colors`}
-                >
-                  {item.icon}
-                </span>
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`${
+                      isActive ? "text-white" : "text-zinc-400 group-hover:text-emerald-600"
+                    } transition-colors`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+
+                {isDemoReq && unreadDemoCount > 0 && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[11px] font-bold font-mono transition-all ${
+                      isActive
+                        ? "bg-white/25 text-white"
+                        : "bg-amber-500 text-white shadow-xs animate-pulse"
+                    }`}
+                  >
+                    {unreadDemoCount}
+                  </span>
+                )}
               </Link>
             );
           })}

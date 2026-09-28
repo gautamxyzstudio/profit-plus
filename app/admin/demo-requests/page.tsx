@@ -12,6 +12,7 @@ interface DemoRequest {
   countryCode: string;
   phone: string;
   message: string;
+  isRead?: boolean;
   createdAt: string;
   updatedAt?: string;
 }
@@ -31,13 +32,33 @@ export default function DemoRequestsPage() {
   const [demoToDelete, setDemoToDelete] = useState<DemoRequest | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const markAllAsRead = useCallback(async () => {
+    try {
+      const res = await authFetch("/api/book-demo/mark-all-read", {
+        method: "PUT",
+      });
+      if (res.ok) {
+        window.dispatchEvent(new Event("admin_stats_updated"));
+      }
+    } catch (err) {
+      console.error("Error marking demo requests as read", err);
+    }
+  }, [authFetch]);
+
   const fetchDemos = useCallback(async () => {
     setLoading(true);
     try {
       const res = await authFetch("/api/book-demo");
       if (res.ok) {
         const data = await res.json();
-        setDemoRequests(data.data || []);
+        const items: DemoRequest[] = data.data || [];
+        setDemoRequests(items);
+
+        // If there are unread items, mark all as read
+        const hasUnread = items.some((item) => !item.isRead);
+        if (hasUnread) {
+          await markAllAsRead();
+        }
       } else {
         error("Error", "Failed to fetch demo requests");
       }
@@ -47,11 +68,12 @@ export default function DemoRequestsPage() {
     } finally {
       setLoading(false);
     }
-  }, [authFetch, error]);
+  }, [authFetch, error, markAllAsRead]);
 
   useEffect(() => {
     fetchDemos();
-  }, [fetchDemos]);
+    markAllAsRead();
+  }, [fetchDemos, markAllAsRead]);
 
   // Lock html and body scroll when demo modal is open
   useEffect(() => {
@@ -128,6 +150,15 @@ export default function DemoRequestsPage() {
     success("Export Complete", "Demo requests downloaded as CSV.");
   };
 
+  const handleSelectDemo = (demo: DemoRequest) => {
+    setSelectedDemo(demo);
+    if (!demo.isRead) {
+      setDemoRequests((prev) =>
+        prev.map((d) => (d.id === demo.id ? { ...d, isRead: true } : d))
+      );
+    }
+  };
+
   const filteredDemos = demoRequests.filter((item) => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
@@ -159,12 +190,16 @@ export default function DemoRequestsPage() {
       {/* Top Header Card */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl bg-white border border-zinc-200/80 shadow-xs">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h2 className="font-['Outfit'] font-black text-2xl text-zinc-900 tracking-tight">
               Demo Booking Requests
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-mono text-xs font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 font-mono text-xs font-bold">
               {demoRequests.length} Total
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-mono text-xs font-bold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              All Marked as Read
             </span>
           </div>
           <p className="font-['Manrope'] text-xs sm:text-sm text-zinc-500 mt-1">
@@ -247,7 +282,8 @@ export default function DemoRequestsPage() {
                 <tr className="bg-zinc-50/90 border-b border-zinc-200 text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
                   <th className="py-3.5 px-4 sm:px-6">Requester</th>
                   <th className="py-3.5 px-4">Contact</th>
-                  <th className="py-3.5 px-4">Requirement / Message</th>
+                  <th className="py-3.5 px-4 text-center">Requirement / Message</th>
+                  <th className="py-3.5 px-4 text-center">Is Read</th>
                   <th className="py-3.5 px-4">Requested At</th>
                   <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
                 </tr>
@@ -257,7 +293,7 @@ export default function DemoRequestsPage() {
                   <tr
                     key={demo.id}
                     className="hover:bg-emerald-50/30 transition-colors group cursor-pointer"
-                    onClick={() => setSelectedDemo(demo)}
+                    onClick={() => handleSelectDemo(demo)}
                   >
                     {/* Requester Name & Email */}
                     <td className="py-4 px-4 sm:px-6">
@@ -292,10 +328,31 @@ export default function DemoRequestsPage() {
                     </td>
 
                     {/* Message Preview */}
-                    <td className="py-4 px-4 max-w-xs sm:max-w-sm">
-                      <p className="text-xs text-zinc-600 truncate italic">
+                    <td className="py-4 px-4 max-w-xs sm:max-w-sm text-center">
+                      <p className="text-xs text-zinc-600 truncate italic text-center mx-auto">
                         &ldquo;{demo.message}&rdquo;
                       </p>
+                    </td>
+
+                    {/* Is Read Tick */}
+                    <td className="py-4 px-4 text-center whitespace-nowrap">
+                      {demo.isRead === false ? (
+                        <span
+                          className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-50 border border-amber-200 text-amber-600 mx-auto"
+                          title="Unread"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        </span>
+                      ) : (
+                        <span
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 border border-emerald-200 text-[#199250] shadow-2xs mx-auto"
+                          title="Read"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
+                      )}
                     </td>
 
                     {/* Date */}
@@ -358,9 +415,15 @@ export default function DemoRequestsPage() {
                   <h3 className="font-['Outfit'] font-bold text-lg text-zinc-900">
                     {selectedDemo.name}
                   </h3>
-                  <p className="text-xs text-zinc-500 font-mono">
-                    Requested on {formatDateTime(selectedDemo.createdAt)}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-zinc-500 font-mono">
+                      Requested on {formatDateTime(selectedDemo.createdAt)}
+                    </p>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100/90 text-zinc-600 border border-zinc-200/80">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      Read
+                    </span>
+                  </div>
                 </div>
               </div>
               <button

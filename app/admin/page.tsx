@@ -33,6 +33,7 @@ interface DemoItem {
   countryCode: string;
   phone: string;
   message: string;
+  isRead?: boolean;
   createdAt: string;
 }
 
@@ -80,6 +81,15 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
+
+    const handleStatsUpdated = () => {
+      fetchDashboardData();
+    };
+
+    window.addEventListener("admin_stats_updated", handleStatsUpdated);
+    return () => {
+      window.removeEventListener("admin_stats_updated", handleStatsUpdated);
+    };
   }, [fetchDashboardData]);
 
   // Lock html and body scroll when any modal is open
@@ -233,37 +243,57 @@ export default function AdminDashboardPage() {
         </Link>
 
         {/* Demo Requests Card */}
-        <Link
-          href="/admin/demo-requests"
-          className="group rounded-3xl bg-white border border-zinc-200/80 hover:border-emerald-500/50 p-6 transition-all duration-300 shadow-xs hover:shadow-md flex flex-col justify-between sm:col-span-2 lg:col-span-1"
-        >
-          <div className="flex items-start justify-between">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <span className="text-xs text-zinc-400 group-hover:text-amber-600 font-['Manrope'] font-semibold flex items-center gap-1 transition-colors">
-              Review
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
-          </div>
+        {(() => {
+          const unreadDemosCount = demos.filter((d) => !d.isRead).length;
+          return (
+            <Link
+              href="/admin/demo-requests"
+              className="group rounded-3xl bg-white border border-zinc-200/80 hover:border-amber-500/50 p-6 transition-all duration-300 shadow-xs hover:shadow-md flex flex-col justify-between sm:col-span-2 lg:col-span-1"
+            >
+              <div className="flex items-start justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform relative">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {unreadDemosCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 rounded-full border-2 border-white animate-pulse" />
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {unreadDemosCount > 0 ? (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white font-mono text-[10px] font-bold shadow-xs">
+                      {unreadDemosCount} New
+                    </span>
+                  ) : demos.length > 0 ? (
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono text-[10px] font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      All Read
+                    </span>
+                  ) : null}
+                  <span className="text-xs text-zinc-400 group-hover:text-amber-600 font-['Manrope'] font-semibold flex items-center gap-1 transition-colors">
+                    Review
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
 
-          <div className="mt-5">
-            <p className="font-['Manrope'] text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Demo Requests
-            </p>
-            <p className="font-['Outfit'] font-black text-3xl sm:text-4xl text-zinc-900 mt-1">
-              {loading ? (
-                <span className="inline-block w-8 h-8 bg-zinc-100 rounded-lg animate-pulse" />
-              ) : (
-                demos.length
-              )}
-            </p>
-          </div>
-        </Link>
+              <div className="mt-5">
+                <p className="font-['Manrope'] text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Demo Requests
+                </p>
+                <p className="font-['Outfit'] font-black text-3xl sm:text-4xl text-zinc-900 mt-1">
+                  {loading ? (
+                    <span className="inline-block w-8 h-8 bg-zinc-100 rounded-lg animate-pulse" />
+                  ) : (
+                    demos.length
+                  )}
+                </p>
+              </div>
+            </Link>
+          );
+        })()}
       </div>
 
       {/* Grid of Recent Tables */}
@@ -354,13 +384,31 @@ export default function AdminDashboardPage() {
               demos.slice(0, 3).map((d) => (
                 <div
                   key={d.id}
-                  onClick={() => setSelectedDemo(d)}
+                  onClick={() => {
+                    setSelectedDemo(d);
+                    if (!d.isRead) {
+                      setDemos((prev) =>
+                        prev.map((item) => (item.id === d.id ? { ...item, isRead: true } : item))
+                      );
+                    }
+                  }}
                   className="py-3.5 flex items-start justify-between gap-3 hover:bg-amber-50/40 -mx-2 px-2 rounded-xl cursor-pointer transition-colors group"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-['Outfit'] font-bold text-sm text-zinc-900 group-hover:text-amber-700 transition-colors truncate">
-                      {d.name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-['Outfit'] font-bold text-sm text-zinc-900 group-hover:text-amber-700 transition-colors truncate">
+                        {d.name}
+                      </p>
+                      {d.isRead === false ? (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
+                          NEW
+                        </span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Read
+                        </span>
+                      )}
+                    </div>
                     <p className="font-['Manrope'] text-xs text-zinc-500 truncate mt-0.5">
                       {d.email} • {d.countryCode} {d.phone}
                     </p>
