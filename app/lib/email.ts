@@ -9,6 +9,12 @@ type DemoEmailData = {
   message: string;
 };
 
+type ForgotPasswordOtpData = {
+  name: string;
+  email: string;
+  otp: string;
+};
+
 type ContactEmailData = {
   name: string;
   email: string;
@@ -34,7 +40,15 @@ function getLogoBase64(): string {
   return "";
 }
 
-async function sendBrevoEmail(subject: string, htmlContent: string) {
+async function sendBrevoEmail(
+  subject: string,
+  htmlContent: string,
+  toEmail?: string,
+  toName?: string,
+) {
+  const recipientEmail = toEmail || process.env.ADMIN_EMAIL!;
+  const recipientName = toName || "Admin";
+
   const logoBase64 = getLogoBase64();
   const attachment = logoBase64
     ? [
@@ -59,8 +73,8 @@ async function sendBrevoEmail(subject: string, htmlContent: string) {
       },
       to: [
         {
-          email: process.env.ADMIN_EMAIL!,
-          name: "Admin",
+          email: recipientEmail,
+          name: recipientName,
         },
       ],
       subject,
@@ -555,3 +569,381 @@ export async function sendContactUsEmail(data: ContactEmailData) {
     `,
   );
 }
+
+
+export async function sendForgotPasswordOtpEmail(
+  data: ForgotPasswordOtpData,
+) {
+  return sendBrevoEmail(
+    "Profit Plus - Password Reset OTP",
+    `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .pp-header {
+        background-color: #dff3e6 !important;
+        background-image: linear-gradient(
+          135deg,
+          #dff3e6 0%,
+          #bfe8ce 100%
+        ) !important;
+      }
+
+      .pp-title {
+        color: #0d4f2b !important;
+      }
+
+      .pp-subtitle {
+        color: #27613e !important;
+      }
+
+      .pp-outer {
+        background-color: #111827 !important;
+        background-image: none !important;
+      }
+
+      .pp-card,
+      .pp-body {
+        background-color: #111827 !important;
+      }
+
+      .pp-text {
+        color: #e5e7eb !important;
+      }
+
+      .pp-otp-box {
+        background-color: #1f2937 !important;
+        border-color: #374151 !important;
+      }
+
+      .pp-otp {
+        color: #4ade80 !important;
+      }
+
+      .pp-footer {
+        background-color: #0f172a !important;
+        border-top-color: #374151 !important;
+      }
+
+      .pp-footer-text {
+        color: #94a3b8 !important;
+      }
+    }
+
+    [data-ogsc] .pp-header {
+      background-color: #dff3e6 !important;
+      background-image: linear-gradient(
+        135deg,
+        #dff3e6 0%,
+        #bfe8ce 100%
+      ) !important;
+    }
+
+    [data-ogsc] .pp-title {
+      color: #0d4f2b !important;
+    }
+
+    [data-ogsc] .pp-subtitle {
+      color: #27613e !important;
+    }
+
+    [data-ogsc] .pp-outer {
+      background-color: #111827 !important;
+    }
+
+    [data-ogsc] .pp-card,
+    [data-ogsc] .pp-body {
+      background-color: #111827 !important;
+    }
+
+    [data-ogsc] .pp-text {
+      color: #e5e7eb !important;
+    }
+
+    [data-ogsc] .pp-otp-box {
+      background-color: #1f2937 !important;
+      border-color: #374151 !important;
+    }
+
+    [data-ogsc] .pp-otp {
+      color: #4ade80 !important;
+    }
+
+    [data-ogsc] .pp-footer {
+      background-color: #0f172a !important;
+      border-top-color: #374151 !important;
+    }
+  </style>
+
+  <title>Password Reset OTP</title>
+</head>
+
+<body
+  style="
+    margin:0;
+    padding:0;
+    background-color:#f4faf6 !important;
+    background:#f4faf6 !important;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    color:#1e293b;
+  "
+>
+  <table
+    width="100%"
+    border="0"
+    cellspacing="0"
+    cellpadding="0"
+    bgcolor="#f4faf6"
+    class="email-outer pp-outer"
+    style="
+      background-color:#f4faf6 !important;
+      background:#f4faf6 !important;
+      padding:35px 15px;
+    "
+  >
+    <tr>
+      <td align="center">
+
+        <table
+          width="100%"
+          border="0"
+          cellspacing="0"
+          cellpadding="0"
+          bgcolor="#ffffff"
+          class="email-card pp-card"
+          style="
+            max-width:540px;
+            border-radius:20px;
+            overflow:hidden;
+            border:1px solid #e2e8f0;
+            box-shadow:0 10px 25px -5px rgba(5,80,39,0.06);
+          "
+        >
+
+          <!-- Header -->
+          <tr>
+            <td
+              class="pp-header"
+              bgcolor="#dff3e6"
+              style="
+                background-color:#dff3e6;
+                background:linear-gradient(
+                  135deg,
+                  #dff3e6 0%,
+                  #bfe8ce 100%
+                );
+                padding:26px 20px;
+                text-align:center;
+              "
+            >
+
+              <!-- Logo -->
+              <table
+                border="0"
+                cellspacing="0"
+                cellpadding="0"
+                align="center"
+                style="margin:0 auto 14px auto;"
+              >
+                <tr>
+                  <td
+                    align="center"
+                    style="padding:0;text-align:center;"
+                  >
+                    <img
+                      src="cid:logo.png"
+                      alt="Profit Plus"
+                      width="120"
+                      style="
+                        display:block;
+                        width:120px;
+                        max-width:120px;
+                        height:auto;
+                        margin:0 auto;
+                        border:0;
+                      "
+                    />
+                  </td>
+                </tr>
+              </table>
+
+              <h1
+                class="pp-title"
+                style="
+                  color:#0d4f2b;
+                  margin:0;
+                  font-size:19px;
+                  font-weight:800;
+                  letter-spacing:-0.3px;
+                "
+              >
+                Password Reset Request
+              </h1>
+
+              <p
+                class="pp-subtitle"
+                style="
+                  color:#27613e;
+                  margin:4px 0 0 0;
+                  font-size:12px;
+                  font-weight:500;
+                "
+              >
+                Use the OTP below to reset your Profit Plus password
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td
+              class="pp-body"
+              style="
+                padding:30px 22px;
+                background-color:#ffffff;
+              "
+            >
+
+              <p
+                class="pp-text"
+                style="
+                  margin:0 0 12px 0;
+                  font-size:14px;
+                  line-height:1.6;
+                  color:#334155;
+                "
+              >
+                Hello <strong>${data.name}</strong>,
+              </p>
+
+              <p
+                class="pp-text"
+                style="
+                  margin:0 0 22px 0;
+                  font-size:14px;
+                  line-height:1.6;
+                  color:#334155;
+                "
+              >
+                We received a request to reset your Profit Plus
+                account password. Use the verification code below
+                to continue.
+              </p>
+
+              <!-- OTP -->
+              <div
+                class="pp-otp-box"
+                style="
+                  background-color:#f0faf4;
+                  border:1px solid #ccebd8;
+                  border-radius:14px;
+                  padding:22px 15px;
+                  text-align:center;
+                  margin:10px 0 24px 0;
+                "
+              >
+                <p
+                  style="
+                    margin:0 0 8px 0;
+                    font-size:11px;
+                    font-weight:700;
+                    color:#64748b;
+                    text-transform:uppercase;
+                    letter-spacing:1px;
+                  "
+                >
+                  Verification Code
+                </p>
+
+                <div
+                  class="pp-otp"
+                  style="
+                    color:#199250;
+                    font-size:32px;
+                    font-weight:800;
+                    letter-spacing:8px;
+                    line-height:1.2;
+                  "
+                >
+                  ${data.otp}
+                </div>
+              </div>
+
+              <p
+                class="pp-text"
+                style="
+                  margin:0;
+                  font-size:13px;
+                  line-height:1.6;
+                  color:#64748b;
+                  text-align:center;
+                "
+              >
+                This OTP is valid for
+                <strong>5 minutes</strong>.
+              </p>
+
+              <p
+                class="pp-text"
+                style="
+                  margin:22px 0 0 0;
+                  font-size:12px;
+                  line-height:1.6;
+                  color:#94a3b8;
+                  text-align:center;
+                "
+              >
+                If you did not request a password reset,
+                please ignore this email.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td
+              bgcolor="#f8fafc"
+              class="pp-footer"
+              style="
+                background-color:#f8fafc !important;
+                background:#f8fafc !important;
+                padding:14px 20px;
+                text-align:center;
+                border-top:1px solid #e2e8f0;
+              "
+            >
+              <p
+                class="pp-footer-text"
+                style="
+                  margin:0;
+                  font-size:11px;
+                  color:#94a3b8;
+                "
+              >
+                    Profit Plus Password Security
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+        `,
+        data.email,
+        data.name || "Admin",
+      );
+    }
