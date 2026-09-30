@@ -148,13 +148,13 @@ export default async function BlogPostPage({ params }: Props) {
         </h1>
 
         {/* Featured Image Banner - Starts from left edge matching Navbar width */}
-        <div className="w-full aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/7] relative rounded-[20px] sm:rounded-[28px] overflow-hidden bg-zinc-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)] mb-8 sm:mb-12 border border-zinc-100">
+        <div className="w-full aspect-[16/9] relative rounded-[20px] sm:rounded-[28px] overflow-hidden bg-zinc-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)] mb-8 sm:mb-12 border border-zinc-100">
           <Image
             src={post.featuredImage}
             alt={post.title}
             fill
             unoptimized={Boolean(post.featuredImage?.startsWith("/api/"))}
-            className="object-cover"
+            className="object-cover object-center"
             priority
           />
         </div>

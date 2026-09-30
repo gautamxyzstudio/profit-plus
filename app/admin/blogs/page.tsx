@@ -482,12 +482,12 @@ export default function BlogsListPage() {
             <div className="p-6 sm:p-8 overflow-y-auto flex-1 font-['Manrope'] space-y-6">
               {/* Featured Image */}
               {previewBlog.featuredImage && (
-                <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden border border-zinc-200">
+                <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={previewBlog.featuredImage}
                     alt={previewBlog.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center"
                   />
                 </div>
               )}
@@ -506,9 +506,10 @@ export default function BlogsListPage() {
               </div>
 
               {/* Full Content */}
-              <div className="pt-4 border-t border-zinc-100 text-zinc-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-                {previewBlog.content}
-              </div>
+              <div
+                className="pt-4 border-t border-zinc-100 text-zinc-800 text-sm sm:text-base leading-relaxed overflow-y-auto max-w-none [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2.5 [&_h2]:text-zinc-900 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:text-zinc-900 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:mt-3 [&_h4]:mb-1.5 [&_h4]:text-zinc-800 [&_p]:mb-3.5 [&_p]:text-zinc-700 [&_strong]:text-zinc-900 [&_strong]:font-bold [&_b]:text-zinc-900 [&_b]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3.5 [&_ul]:text-zinc-700 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3.5 [&_ol]:text-zinc-700 [&_li]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-[#199250] [&_blockquote]:bg-emerald-50/60 [&_blockquote]:rounded-r-xl [&_blockquote]:py-2.5 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-zinc-700 [&_blockquote]:my-3.5 [&_pre]:bg-zinc-50 [&_pre]:border [&_pre]:border-zinc-200 [&_pre]:text-emerald-800 [&_pre]:p-4 [&_pre]:rounded-xl [&_pre]:font-mono [&_pre]:text-xs [&_pre]:my-3.5 [&_code]:font-mono [&_code]:text-xs [&_code]:bg-zinc-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-emerald-800 [&_a]:text-[#199250] [&_a]:underline [&_a]:font-medium [&_a:hover]:text-[#055027] [&_img]:rounded-xl [&_img]:max-h-80 [&_img]:my-3.5 [&_img]:border [&_img]:border-zinc-200 [&_hr]:border-zinc-200 [&_hr]:my-4"
+                dangerouslySetInnerHTML={{ __html: previewBlog.content || "" }}
+              />
 
               {/* SEO Tags Meta */}
               {(previewBlog.metaTitle || previewBlog.metaDescription) && (
