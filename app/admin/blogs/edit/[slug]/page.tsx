@@ -524,7 +524,7 @@ export default function EditBlogPage({ params }: EditBlogPageProps) {
             value={content}
             onChange={setContent}
             placeholder="Edit article text..."
-            minHeight="450px"
+            height="460px"
           />
         </div>
 
@@ -617,7 +617,7 @@ export default function EditBlogPage({ params }: EditBlogPageProps) {
         </div>
       </form>
 
-      {/* Fixed Bottom Action Bar - Docked flush to the bottom with no space below */}
+      {/* Fixed Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 md:left-72 z-40 bg-white border-t border-zinc-200 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 sm:px-8 py-3.5 sm:py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <Link

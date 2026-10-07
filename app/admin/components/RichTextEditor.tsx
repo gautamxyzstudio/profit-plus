@@ -29,6 +29,7 @@ interface RichTextEditorProps {
   onChange: (content: string) => void;
   placeholder?: string;
   minHeight?: string;
+  height?: string;
 }
 
 const FORMAT_OPTIONS = [
@@ -45,6 +46,7 @@ export default function RichTextEditor({
   onChange,
   placeholder = "Write your blog content here...",
   minHeight = "280px",
+  height = "420px",
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -167,9 +169,9 @@ export default function RichTextEditor({
   const activeOption = FORMAT_OPTIONS.find((o) => o.value === currentFormat) || FORMAT_OPTIONS[0];
 
   return (
-    <div className="w-full rounded-2xl bg-white border border-zinc-200/90 overflow-hidden shadow-xs focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+    <div className="w-full rounded-2xl bg-white border border-zinc-200/90 overflow-hidden shadow-xs focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all flex flex-col">
       {/* Editor Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-zinc-50/90 border-b border-zinc-200/80 text-zinc-600 select-none">
+      <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 p-2.5 bg-zinc-50/90 border-b border-zinc-200/80 text-zinc-600 select-none">
         {/* Left Toolbar Actions */}
         <div className="flex flex-wrap items-center gap-1">
           {/* Custom Styled Block Format Dropdown */}
@@ -422,14 +424,14 @@ export default function RichTextEditor({
         </div>
       </div>
 
-      {/* Editor Body */}
+      {/* Editor Body with Internal Scrolling */}
       {isSourceMode ? (
         <textarea
           value={htmlSource}
           onChange={handleSourceChange}
           placeholder="Edit raw HTML source code here..."
-          className="w-full p-5 bg-white text-zinc-800 font-mono text-xs sm:text-sm focus:outline-none resize-y leading-relaxed selection:bg-emerald-100 selection:text-emerald-900 placeholder:text-zinc-400"
-          style={{ minHeight }}
+          className="w-full p-5 bg-white text-zinc-800 font-mono text-xs sm:text-sm focus:outline-none resize-none overflow-y-auto leading-relaxed selection:bg-emerald-100 selection:text-emerald-900 placeholder:text-zinc-400"
+          style={{ height, minHeight }}
         />
       ) : (
         <div
@@ -438,13 +440,13 @@ export default function RichTextEditor({
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           data-placeholder={placeholder}
-          className="p-5 bg-white text-zinc-900 text-sm focus:outline-none overflow-y-auto leading-relaxed max-w-none empty:before:content-[attr(data-placeholder)] empty:before:text-zinc-400 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-zinc-900 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1.5 [&_h3]:text-zinc-900 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:mt-2 [&_h4]:mb-1 [&_h4]:text-zinc-800 [&_p]:mb-3 [&_p]:text-zinc-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3 [&_ul]:text-zinc-700 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_ol]:text-zinc-700 [&_blockquote]:border-l-4 [&_blockquote]:border-[#199250] [&_blockquote]:bg-emerald-50/60 [&_blockquote]:rounded-r-xl [&_blockquote]:py-2 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-zinc-700 [&_blockquote]:my-3 [&_pre]:bg-zinc-50 [&_pre]:border [&_pre]:border-zinc-200 [&_pre]:text-emerald-800 [&_pre]:p-4 [&_pre]:rounded-xl [&_pre]:font-mono [&_pre]:text-xs [&_pre]:my-3 [&_a]:text-[#199250] [&_a]:underline [&_a]:font-medium [&_a:hover]:text-[#055027] [&_img]:rounded-xl [&_img]:max-h-72 [&_img]:my-3 [&_img]:border [&_img]:border-zinc-200 [&_hr]:border-zinc-200 [&_hr]:my-4"
-          style={{ minHeight }}
+          className="p-5 sm:p-6 bg-white text-zinc-900 text-sm focus:outline-none overflow-y-auto leading-relaxed max-w-none empty:before:content-[attr(data-placeholder)] empty:before:text-zinc-400 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-zinc-900 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1.5 [&_h3]:text-zinc-900 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:mt-2 [&_h4]:mb-1 [&_h4]:text-zinc-800 [&_p]:mb-3 [&_p]:text-zinc-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3 [&_ul]:text-zinc-700 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_ol]:text-zinc-700 [&_blockquote]:border-l-4 [&_blockquote]:border-[#199250] [&_blockquote]:bg-emerald-50/60 [&_blockquote]:rounded-r-xl [&_blockquote]:py-2 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-zinc-700 [&_blockquote]:my-3 [&_pre]:bg-zinc-50 [&_pre]:border [&_pre]:border-zinc-200 [&_pre]:text-emerald-800 [&_pre]:p-4 [&_pre]:rounded-xl [&_pre]:font-mono [&_pre]:text-xs [&_pre]:my-3 [&_a]:text-[#199250] [&_a]:underline [&_a]:font-medium [&_a:hover]:text-[#055027] [&_img]:rounded-xl [&_img]:max-h-72 [&_img]:my-3 [&_img]:border [&_img]:border-zinc-200 [&_hr]:border-zinc-200 [&_hr]:my-4"
+          style={{ height, minHeight }}
         />
       )}
 
       {/* Editor Footer Status */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-50/90 border-t border-zinc-200/80 text-[11px] text-zinc-500 font-['Manrope']">
+      <div className="shrink-0 flex items-center justify-between px-4 py-2.5 bg-zinc-50/90 border-t border-zinc-200/80 text-[11px] text-zinc-500 font-['Manrope']">
         <div className="flex items-center gap-3">
           <span>
             <strong className="text-zinc-800 font-semibold">{wordCount}</strong> words
