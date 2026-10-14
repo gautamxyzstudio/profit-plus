@@ -193,8 +193,7 @@ export default function Footer() {
                 Address
               </h4>
               <div className="font-['Manrope'] text-xs sm:text-[13px] lg:text-[16px] text-[#374151] leading-relaxed">
-                <p>1337 WOOD THRUSH CT</p>
-                <p>GREENWOOD, IN 46143</p>
+                <Link href="https://maps.app.goo.gl/uMwWDcdzC5BGbe9J6">1337 WOOD THRUSH CT, GREENWOOD, IN 46143</Link>
               </div>
               <a
                 href="mailto:Sales@profitplus.us"
