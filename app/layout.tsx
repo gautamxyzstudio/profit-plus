@@ -28,6 +28,7 @@ export const metadata: Metadata = {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WebsiteLoader from "@/components/WebsiteLoader";
+import { CanonicalURL } from "@/components/canonicalURL/CanonicalURL";
 
 export default function RootLayout({
   children,
@@ -39,6 +40,10 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${manrope.variable} scroll-smooth antialiased`}
     >
+      <head>
+        <meta name="google-site-verification" content="KRvW8ZeiACsNAXjSCMH8gbcVrIpTuy4io5hX__NG79c" />
+        <CanonicalURL />
+      </head>
       <body className="min-h-screen bg-white text-white flex flex-col font-['Manrope'] selection:bg-[#199250] selection:text-white">
         {/* Website Open Loading Overlay */}
         <WebsiteLoader />

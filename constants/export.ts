@@ -21,6 +21,8 @@ export const IMAGES = {
   candleSoftware: "/candle-softwear.png",
   candleSoftware2: "/candle-softwear2.png",
   aiBot: "/Ai.png",
+  notFoundGraphic: "/404-graphic.png",
+  perspectiveGrid: "/perspective-grid.webp",
 } as const;
 
 export const COLORS = {
