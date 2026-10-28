@@ -10,17 +10,7 @@ const nextConfig: NextConfig = {
   },
 async redirects() {
     return [
-      {
-        source: "/:path*",
-        has: [
-          {
-            type: "host",
-            value:"profitplus.us",
-          },
-        ],
-        destination: "https://www.profitplus.us/:path*",
-        permanent: true,
-      },
+      
       {
         source: "/futures-trading-hours-explained-best-times-to-trade-for-maximum-profit",
         destination: "/blog/futures-trading-hours-explained-best-times-to-trade-for-maximum-profit",
