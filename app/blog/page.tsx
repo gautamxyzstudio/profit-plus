@@ -84,7 +84,7 @@ export default async function BlogPage() {
   const hasBlogs = Boolean(featured || list.length > 0);
 
   return (
-    <div className="bg-white min-h-screen text-zinc-900 pb-20 sm:pb-28">
+    <div className="bg-white min-h-screen text-zinc-900 pb-20 sm:pb-28  ">
       {/* Hero Header */}
       <section className="pt-32 sm:pt-36 md:pt-40 pb-10 sm:pb-14 px-4 sm:px-6 lg:px-8 text-center max-w-4xl mx-auto">
         <h1 className="font-outfit font-black text-4xl sm:text-5xl md:text-[62px] text-[#111827] tracking-tight leading-none mb-4">

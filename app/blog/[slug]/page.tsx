@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { BlogPost } from "@/constants/blogs";
+import { BlogPost, getBlogPost } from "@/constants/blogs";
 import { prisma } from "@/app/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -100,16 +100,41 @@ async function getRecentBlogs(currentSlug: string): Promise<BlogPost[]> {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await fetchBlog(slug);
+  try {
+    const post = await fetchBlog(slug);
 
-  if (!post) {
-    return { title: "Blog Not Found | Profit Plus" };
+    if (post) {
+      const title =
+        post.metaTitle ||
+        (post.title ? `${post.title} | Profit Plus` : "Profit Plus Blog");
+      const description =
+        post.metaDescription ||
+        post.shortDescription ||
+        "Read our latest blog post on Profit Plus.";
+
+      return {
+        title,
+        description,
+        openGraph: {
+          title,
+          description,
+          images: post.featuredImage ? [post.featuredImage] : undefined,
+        },
+      };
+    }
+
+    // Default metadata if blog post is not found
+    return {
+      title: "Blog Post Not Found | Profit Plus",
+      description: "The requested blog post could not be found.",
+    };
+  } catch (err) {
+    console.error("Error fetching blog metadata:", err);
+    return {
+      title: "Error | Profit Plus",
+      description: "An error occurred while fetching the blog post.",
+    };
   }
-
-  return {
-    title: `${post.title} | Profit Plus`,
-    description: post.shortDescription,
-  };
 }
 
 export default async function BlogPostPage({ params }: Props) {

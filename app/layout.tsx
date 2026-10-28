@@ -23,6 +23,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 import Navbar from "@/components/Navbar";
