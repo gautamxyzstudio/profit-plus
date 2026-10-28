@@ -150,7 +150,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <div className="bg-white min-h-screen text-zinc-900 pb-20 sm:pb-28">
       {/* Main Container - max-w-7xl matches Navbar width so content starts directly from the left edge */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 sm:pt-36 md:pt-40 text-left">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 sm:pt-36 md:pt-40 text-left">
         {/* Breadcrumb Navigation matching Screenshot 3 */}
         <nav aria-label="Breadcrumb" className="mb-3 text-left">
           <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-[13px] font-manrope text-zinc-500">
